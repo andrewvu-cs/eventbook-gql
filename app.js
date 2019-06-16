@@ -6,6 +6,9 @@ const { buildSchema }= require('graphql');
 
 const app = express();
 
+//temporary solution until database
+const events = [];
+
 // parses incoming json data
 app.use(bodyParser.json());
 
@@ -36,7 +39,7 @@ app.use('/graphql', graphqlHttp({
         }
 
         type RootMutation {
-            createEvent(title: String!, description: String!, price: Float!, date: String!): Event
+            createEvent(eventInput: EventInput): Event
         }
 
         schema {
@@ -48,11 +51,18 @@ app.use('/graphql', graphqlHttp({
     //You need resolvers for each unique key
     rootValue: {
         events: () => {
-            return ['Lakers', 'Cliipers', 'Kings'];
+            return events;
         },
         createEvent: (args) => {
-            const eventName = args.name;
-            return eventName;
+            const event = {
+                _id: Math.random().toString(),
+                title: args.eventInput.title,
+                description: args.eventInput.description,
+                price: +args.eventInput.price,
+                date: args.eventInput.date
+            }
+            events.push(event);
+            return event;
         }
     },
     //allows access to graphql ide
